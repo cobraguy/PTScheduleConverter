@@ -6,7 +6,7 @@ document.getElementById("download").addEventListener("click", download);
 function convertSchedule() {
   const schedule = document.getElementById("schedule");
 
-  const namePattern = /^(\w+)\s(.*)\s(Spring|Fall)/;
+  const namePattern = /^(.*)\s(Spring|Fall)/;
   const coursePattern = /(\w{4})\s(\d{3})\s(\d{3})/;
   const timePattern = /^(\d{2}:\d{2})\s-\s(\d{2}:\d{2})/;
   const daysPattern = /^((Monday|Tuesday|Wednesday|Thursday|Friday)(?:,?\s|$))+/;
@@ -21,7 +21,7 @@ function convertSchedule() {
 
     let ptName = line.match(namePattern);
     if (ptName) {
-      newSchedule += "Schedule for " + ptName[1] + " " + ptName[2] + " - " + ptName[3] + "\n";
+      newSchedule += "Schedule for " + ptName[1] + " - " + ptName[2] + "\n";
       continue;
     }
 
@@ -51,16 +51,25 @@ function convertSchedule() {
 // Function from: https://stackoverflow.com/a/48550997
 // Downloads the contents of the #schedule textarea to a .txt file
 function download() {
-  var text = document.getElementById("schedule").value;
+  let text = document.getElementById("schedule").value;
   text = text.replace(/\n/g, "\r\n"); // To retain the Line breaks.
-  var blob = new Blob([text], {
+
+  let filename = "schedule-converted.txt"
+  const namePattern = /^Schedule for (.+) -/;
+  let nameMatch = text.match(namePattern);
+  if(nameMatch){
+    filename = nameMatch[1].replace(/ /g, "_") + ".txt"; 
+  }
+
+  let blob = new Blob([text], {
     type: "text/plain"
   });
-  var anchor = document.createElement("a");
-  anchor.download = "schedule-converted.txt";
+  let anchor = document.createElement("a");
+  anchor.download = filename;
   anchor.href = window.URL.createObjectURL(blob);
   anchor.target = "_blank";
   anchor.style.display = "none"; // just to be safe!
+  
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
